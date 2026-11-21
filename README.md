@@ -37,3 +37,32 @@ QEMU `-device intel-hda,msi=on`) but QNX sees STATESTS=0 (no codec) so no /dev/s
 jfk.wav (11.0 s), tiny.en, 4 threads, QEMU TCG on Apple Silicon (software emulation, generic CPU kernels):
 "And so my fellow Americans ask not what your country can do for you / ask what you can do for your country."
 Total 88.9 s (model load 6.3 s), real-time factor about 8.1 (emulated; not representative of real hardware).
+
+## Live demo (no hardware): Mac microphone -> QNX VM -> dashboard (2026-11-21)
+The VM is the QNX 8.0 x86_64 quickstart image under QEMU TCG. Audio never touches the guest sound stack: the Mac streams 16 kHz mono s16le PCM
+over TCP (`scripts/mac-mic-stream.sh`, ffmpeg avfoundation), `voicecmd -a tcp:10.0.2.2:5555` inside the VM reads it, and its JSON intents are piped
+back over ssh into `demo/dashboard.py` (cabin temperature, navigation, volume, phone, windows) at http://127.0.0.1:8090.
+```
+scripts/build.sh x86_64 && scripts/build-voicecmd.sh x86_64     # once
+(scripts/run-vm-quickstart.sh > /dev/null 2>&1 &); sleep 90      # boot the VM (SMP=4 default)
+scripts/stage-vm.sh                                              # once per rebuild
+scripts/mac-mic-stream.sh --list                                 # optional: audio inputs (default input is used unless MIC=<index>)
+scripts/demo-live.sh                                             # live mic; or: scripts/demo-live.sh --wav some.wav
+```
+First live run: macOS asks Terminal for microphone access. Speak after the dashboard shows "listening". Expect about 8 s from end of
+phrase to dashboard update (emulation, not hardware).
+
+## Latency tuning (quickstart VM, 4 vCPU TCG, tiny.en, 20 phrases, file input, per command from end of speech to JSON)
+| Config | Mean | Min / Max | Accuracy |
+|---|---|---|---|
+| Before (full vocab prompt, audio_ctx margin 50 frames, max 16 tokens) | 10.6 s | 9.8 / 12.2 | 20/20 |
+| Tuned default (5-phrase prompt, margin 25, min ctx 80, max 10 tokens) | 7.9 s | 6.8 / 9.5 | 20/20 (clean voice A), 20/20 (voice C) |
+Findings: (1) the vocabulary prompt costs about 0.15 s per token per command in emulation, the biggest cheap win (no prompt: 4.8 to 6.2 s but
+accuracy drops, "Call Sarah" heard as "Call sir", "Volume up" as "Volume Upper"); (2) encoder time scales with audio_ctx; (3) AVX2/FMA ggml build
+(`SIMD=avx2`) is SLOWER under TCG (17 s vs 11.5 s per command): leave it off; (4) 3 threads slower than 4; the Mac has 4 performance cores, so
+more vCPUs were not tried beyond 4. Trade-off: with 10 dB cabin noise on a second voice the tuned build scores 18/20 (misses: "Mute" garbled,
+"Call Zebediah" heard as "Call Sarah", a wrong action caused by the prompt bias; a smoke test with TTS voices, not a benchmark).
+VAD: the noise floor now calibrates on the first 300 ms and rises slowly while a gate is open, margin 10 dB. Before, constant noise above -45 dBFS held the
+gate open until the 8 s cap (0 utterances found on the noisy streams); now it segments all 20 (`voicecmd/tests/vad_segments.c`).
+Tunables: `voicecmd --ctx-margin N --audio-ctx-min N --max-tokens N --hang-ms N --prompt TEXT --timings`; benchmark with `scripts/bench-vm.sh`.
+End to end proof: a recorded WAV played as the mic over TCP into the VM: 20/20, mean 10.7 s (before tuning), `voicecmd/results/mic_wav_over_tcp_quickstart.jsonl`.
