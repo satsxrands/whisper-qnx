@@ -1,0 +1,20 @@
+01	Set temperature to 21	set_temperature	{"celsius":21}
+02	Set the temperature to twenty four degrees	set_temperature	{"celsius":24}
+03	Navigate home	navigate	{"destination":"home"}
+04	Navigate to work	navigate	{"destination":"work"}
+05	Navigate to the airport	navigate	{"destination":"airport"}
+06	Call Mom	call	{"contact":"mom"}
+07	Call John	call	{"contact":"john"}
+08	Call Sarah	call	{"contact":"sarah"}
+09	Volume up	volume_up	{}
+10	Volume down	volume_down	{}
+11	Turn the volume up	volume_up	{}
+12	Mute	mute	{}
+13	Open the window	open_window	{"which":"all"}
+14	Close the window	close_window	{"which":"all"}
+15	Open the passenger window	open_window	{"which":"passenger"}
+16	Set temperature to 99	REJECT	out_of_range
+17	Call Zebediah	REJECT	unknown_contact
+18	Navigate to Paris	REJECT	unknown_destination
+19	Open the door	REJECT	no_match
+20	What is the weather like today	REJECT	no_match

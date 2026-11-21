@@ -1,0 +1,22 @@
+{"event":"ready","audio":"file","model_load_ms":7649,"threads":4}
+{"event":"command","intent":"set_temperature","slots":{"celsius":21},"match":"exact","transcript":"Set temperature to 21. Set temperature to 21. Set temperature to 21. Set temperature to 21. Set temperature to 21.","audio_ms":2380,"latency_ms":14115}
+{"event":"command","intent":"set_temperature","slots":{"celsius":24},"match":"exact","transcript":"Set the temperature to 24 degrees. Set the temperature to 24 degrees. Set the temperature to 24 degrees. Set the temperature to","audio_ms":3020,"latency_ms":15922}
+{"event":"command","intent":"navigate","slots":{"destination":"home"},"match":"exact","transcript":"Navigate home. Navigate home. Navigate home. Navigate home. Navigate home. Navigate home. Nav","audio_ms":1660,"latency_ms":13302}
+{"event":"command","intent":"navigate","slots":{"destination":"work"},"match":"exact","transcript":"Navigate to work. Navigate to work. Navigate to work. Navigate to work. Navigate to work.","audio_ms":1700,"latency_ms":13182}
+{"event":"command","intent":"navigate","slots":{"destination":"airport"},"match":"exact","transcript":"Navigate to the airport. Navigate to the airport. Navigate to the airport. Navigate to the airport. Nav","audio_ms":2140,"latency_ms":12824}
+{"event":"command","intent":"call","slots":{"contact":"mom"},"match":"exact","transcript":"Call Mom. Call Mom. Call Mom. Call Mom. Call Mom. Call Mom. Call Mom. Call Mom. Call","audio_ms":1380,"latency_ms":11461}
+{"event":"command","intent":"call","slots":{"contact":"john"},"match":"exact","transcript":"Call John. Call John. Call John. Call John. Call John. Call John. Call John. Call John. Call","audio_ms":1420,"latency_ms":11424}
+{"event":"command","intent":"call","slots":{"contact":"sarah"},"match":"exact","transcript":"Call Sarah. Call Sarah. Call Sarah. Call Sarah. Call Sarah. Call Sarah. Call Sarah. Call Sarah. Call","audio_ms":1400,"latency_ms":11457}
+{"event":"command","intent":"volume_up","slots":{},"match":"exact","transcript":"Volume up. Volume up. Volume up. Volume up. Volume up. Volume up. Volume up. Volume up. Volume","audio_ms":1360,"latency_ms":14803}
+{"event":"command","intent":"volume_down","slots":{},"match":"exact","transcript":"Volume down. Volume down. Volume down. Volume down. Volume down. Volume down. Volume down. Volume down. Volume","audio_ms":1560,"latency_ms":13675}
+{"event":"command","intent":"volume_up","slots":{},"match":"exact","transcript":"Turn the volume up. Turn the volume up. Turn the volume up. Turn the volume up. Turn the volume up.","audio_ms":1700,"latency_ms":12274}
+{"event":"command","intent":"mute","slots":{},"match":"exact","transcript":"Mute. Mute. Mute. Mute. Mute. Mute. Mute. Mute. M","audio_ms":1120,"latency_ms":10374}
+{"event":"command","intent":"open_window","slots":{"which":"all"},"match":"exact","transcript":"Open the window. Open the window. Open the window. Open the window. Open the window. Open the window. Open","audio_ms":1620,"latency_ms":11139}
+{"event":"command","intent":"close_window","slots":{"which":"all"},"match":"exact","transcript":"Close the window. Close the window. Close the window. Close the window. Close the window. Close the window. Close","audio_ms":1660,"latency_ms":11051}
+{"event":"command","intent":"open_window","slots":{"which":"passenger"},"match":"exact","transcript":"Open the passenger window. Open the passenger window. Open the passenger window. Open the passenger window. Open the passenger window.","audio_ms":2200,"latency_ms":11850}
+{"event":"rejected","reason":"out_of_range","match":"exact","transcript":"Set temperature to 99. Set temperature to 99. Set temperature to 99. Set temperature to 99. Set temperature to 99.","audio_ms":2460,"latency_ms":12467}
+{"event":"rejected","reason":"unknown_contact","match":"exact","transcript":"Call Zebedia. Call Zebedia. Call Zebedia. Call Zebedia. Call Zebedia.","audio_ms":1700,"latency_ms":15961}
+{"event":"rejected","reason":"unknown_destination","match":"exact","transcript":"Navigate to Paris. Navigate to Paris.","audio_ms":1920,"latency_ms":12592}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"Open the door. Open the door. Open the door. Open the door. Open the door. Open the door. Open","audio_ms":1500,"latency_ms":14013}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"What is the weather like today? What is the weather like today? What is the weather like today? What is the weather","audio_ms":2180,"latency_ms":12894}
+{"event":"eof"}

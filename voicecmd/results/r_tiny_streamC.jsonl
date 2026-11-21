@@ -1,0 +1,22 @@
+{"event":"ready","audio":"file","model_load_ms":53,"threads":4}
+{"event":"command","intent":"set_temperature","slots":{"celsius":21},"match":"exact","transcript":"Set temperature to 21.","audio_ms":2740,"latency_ms":107}
+{"event":"command","intent":"set_temperature","slots":{"celsius":24},"match":"exact","transcript":"Set the temperature to 24 degrees.","audio_ms":3340,"latency_ms":109}
+{"event":"command","intent":"navigate","slots":{"destination":"home"},"match":"exact","transcript":"Navigate home.","audio_ms":1980,"latency_ms":93}
+{"event":"command","intent":"navigate","slots":{"destination":"work"},"match":"exact","transcript":"Navigate to work.","audio_ms":2060,"latency_ms":101}
+{"event":"command","intent":"navigate","slots":{"destination":"airport"},"match":"exact","transcript":"Navigate to the airport.","audio_ms":2340,"latency_ms":98}
+{"event":"command","intent":"call","slots":{"contact":"mom"},"match":"exact","transcript":"Call Mom.","audio_ms":1600,"latency_ms":67}
+{"event":"command","intent":"call","slots":{"contact":"john"},"match":"exact","transcript":"Call John.","audio_ms":1640,"latency_ms":64}
+{"event":"command","intent":"call","slots":{"contact":"sarah"},"match":"exact","transcript":"Call Sarah.","audio_ms":1760,"latency_ms":89}
+{"event":"command","intent":"volume_up","slots":{},"match":"exact","transcript":"Volume up.","audio_ms":1600,"latency_ms":91}
+{"event":"command","intent":"volume_down","slots":{},"match":"exact","transcript":"Volume down.","audio_ms":1880,"latency_ms":117}
+{"event":"command","intent":"volume_up","slots":{},"match":"exact","transcript":"Turn the volume up.","audio_ms":1940,"latency_ms":95}
+{"event":"command","intent":"mute","slots":{},"match":"exact","transcript":"Mute.","audio_ms":1420,"latency_ms":79}
+{"event":"command","intent":"open_window","slots":{"which":"all"},"match":"exact","transcript":"Open the window.","audio_ms":1860,"latency_ms":89}
+{"event":"command","intent":"close_window","slots":{"which":"all"},"match":"exact","transcript":"Close the window.","audio_ms":1840,"latency_ms":106}
+{"event":"command","intent":"open_window","slots":{"which":"passenger"},"match":"exact","transcript":"Open the passenger window.","audio_ms":2440,"latency_ms":104}
+{"event":"rejected","reason":"out_of_range","match":"exact","transcript":"Set temperature to 99.","audio_ms":2820,"latency_ms":109}
+{"event":"rejected","reason":"unknown_contact","match":"exact","transcript":"Call Zebedar.","audio_ms":1820,"latency_ms":97}
+{"event":"rejected","reason":"unknown_destination","match":"exact","transcript":"Navigate to Paris.","audio_ms":2200,"latency_ms":88}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"Open the door.","audio_ms":1820,"latency_ms":98}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"What is the weather like today?","audio_ms":2580,"latency_ms":96}
+{"event":"eof"}
