@@ -1,0 +1,37 @@
+diff --git a/ggml/src/ggml-cpu/ggml-cpu.cpp b/ggml/src/ggml-cpu/ggml-cpu.cpp
+index 81ff5d79..eece50d3 100644
+--- a/ggml/src/ggml-cpu/ggml-cpu.cpp
++++ b/ggml/src/ggml-cpu/ggml-cpu.cpp
+@@ -10,6 +10,12 @@
+ #include <string>
+ #include <vector>
+ 
++#if defined(__QNX__)
++#include <string.h>
++#include <sys/neutrino.h>
++#include <sys/syspage.h>
++#endif
++
+ #ifdef GGML_USE_CPU_HBM
+ #    include "hbm.h"
+ #endif
+@@ -369,6 +375,19 @@ static void ggml_backend_cpu_device_get_memory(ggml_backend_dev_t dev, size_t *
+     GlobalMemoryStatusEx(&status);
+     *total = status.ullTotalPhys;
+     *free = status.ullAvailPhys;
++#elif defined(__QNX__)
++    // QNX has no _SC_PHYS_PAGES: sum the "ram" address-space entries in the system page.
++    uint64_t ram = 0;
++    struct asinfo_entry * as = SYSPAGE_ENTRY(asinfo);
++    size_t n = SYSPAGE_ENTRY_SIZE(asinfo) / sizeof(struct asinfo_entry);
++    char * strs = SYSPAGE_ENTRY(strings)->data;
++    for (size_t i = 0; i < n; i++) {
++        if (strcmp(strs + as[i].name, "ram") == 0 || strcmp(strs + as[i].name, "/memory/ram") == 0) {
++            ram += as[i].end - as[i].start + 1;
++        }
++    }
++    *total = ram ? ram : (size_t) 1 << 30;
++    *free = *total;
+ #else
+     long pages = sysconf(_SC_PHYS_PAGES);
+     long page_size = sysconf(_SC_PAGE_SIZE);

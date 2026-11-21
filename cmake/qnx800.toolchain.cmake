@@ -1,10 +1,14 @@
 # QNX SDP 8.0 toolchain file. Usage: -DCMAKE_TOOLCHAIN_FILE=cmake/qnx800.toolchain.cmake -DQNX_ARCH=aarch64le|x86_64
-# Requires: source ~/qnx800/qnxsdp-env.sh (sets QNX_HOST, QNX_TARGET). UNTESTED until the SDP is installed.
+# Requires: source ~/qnx800/qnxsdp-env.sh (sets QNX_HOST, QNX_TARGET). Tested with SDP 8.0 in the pinned container.
 set(CMAKE_SYSTEM_NAME QNX)
 if(NOT QNX_ARCH)
   set(QNX_ARCH aarch64le)
 endif()
-set(CMAKE_SYSTEM_PROCESSOR ${QNX_ARCH})
+if(QNX_ARCH STREQUAL "aarch64le")
+  set(CMAKE_SYSTEM_PROCESSOR aarch64)
+else()
+  set(CMAKE_SYSTEM_PROCESSOR ${QNX_ARCH})
+endif()
 set(QNX_HOST "$ENV{QNX_HOST}")
 set(QNX_TARGET "$ENV{QNX_TARGET}")
 if(NOT QNX_HOST OR NOT QNX_TARGET)
