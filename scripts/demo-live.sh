@@ -10,6 +10,6 @@ VM=quickstart "$HERE/scripts/vm-ssh.sh" 'test -x /data/home/qnxuser/x/gen/voicec
 pkill -f "ffmpeg.*tcp://0.0.0.0:$PORT" 2>/dev/null
 PORT=$PORT "$HERE/scripts/mac-mic-stream.sh" "$@" & MIC=$!
 trap 'kill $MIC 2>/dev/null; pkill -f "ffmpeg.*tcp://0.0.0.0:$PORT" 2>/dev/null; exit 0' INT TERM EXIT
-sleep 2; (sleep 1; open http://127.0.0.1:8090 2>/dev/null) &
+sleep 2; [ -n "$NOOPEN" ] || (sleep 1; open http://127.0.0.1:8090 2>/dev/null) &
 VM=quickstart "$HERE/scripts/vm-ssh.sh" "cd /data/home/qnxuser/x/gen && LD_LIBRARY_PATH=\$PWD/lib ./voicecmd -m ../vc/ggml-tiny.en.bin -a tcp:10.0.2.2:$PORT -t 4 2>/dev/null" \
   | python3 -I "$HERE/demo/dashboard.py" --tee "${TEE:-/tmp/voicecmd-demo-events.jsonl}"
