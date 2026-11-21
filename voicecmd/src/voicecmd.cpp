@@ -19,18 +19,22 @@ static long now_ms() {
 }
 
 static void usage(const char *p) {
-    fprintf(stderr, "usage: %s -m model.bin -a <file:x.wav|tcp:host:port|snd:name> [-t threads] [--audio-ctx-min N] [--no-prompt] [--max N]\n", p);
+    fprintf(stderr, "usage: %s -m model.bin -a <file:x.wav|tcp:host:port|snd:name> [-t threads] [--audio-ctx-min N] [--ctx-margin N] [--hang-ms N] [--max-tokens N] [--timings] [--no-prompt] [--max N]\n", p);
 }
 
 int main(int argc, char **argv) {
     const char *model = nullptr, *spec = nullptr;
-    int threads = 4, ctx_min = 100, max_utts = 0; bool use_prompt = true;
+    int threads = 4, ctx_min = 100, ctx_margin = 50, hang_ms = 600, max_tokens = 16, max_utts = 0; bool use_prompt = true, timings = false;
     for (int i = 1; i < argc; i++) {
         std::string a = argv[i];
         if (a == "-m" && i + 1 < argc) model = argv[++i];
         else if (a == "-a" && i + 1 < argc) spec = argv[++i];
         else if (a == "-t" && i + 1 < argc) threads = atoi(argv[++i]);
         else if (a == "--audio-ctx-min" && i + 1 < argc) ctx_min = atoi(argv[++i]);
+        else if (a == "--ctx-margin" && i + 1 < argc) ctx_margin = atoi(argv[++i]);
+        else if (a == "--hang-ms" && i + 1 < argc) hang_ms = atoi(argv[++i]);
+        else if (a == "--max-tokens" && i + 1 < argc) max_tokens = atoi(argv[++i]);
+        else if (a == "--timings") timings = true;
         else if (a == "--max" && i + 1 < argc) max_utts = atoi(argv[++i]);
         else if (a == "--no-prompt") use_prompt = false;
         else { usage(argv[0]); return 2; }
@@ -55,7 +59,7 @@ int main(int argc, char **argv) {
     const int PRE = 10;  // 200 ms of pre-roll so the first phoneme is not clipped
     std::vector<int16_t> frame(VAD_FRAME), utt;
     std::vector<std::vector<int16_t>> ring; // last PRE frames
-    vad_t vad; vad_init(&vad);
+    vad_t vad; vad_init(&vad); vad.hang_frames = hang_ms / 20 < 1 ? 1 : hang_ms / 20;
     int n_done = 0;
     long t_start_utt = 0;
     for (;;) {
@@ -83,11 +87,11 @@ int main(int argc, char **argv) {
             p.n_threads = threads; p.language = "en"; p.translate = false;
             p.print_progress = p.print_realtime = p.print_timestamps = p.print_special = false;
             p.no_timestamps = true; p.single_segment = true; p.no_context = true;
-            p.max_tokens = 16; /* commands are short; a cap also stops repetition loops seen with a shortened audio_ctx */
+            p.max_tokens = max_tokens; /* commands are short; a cap also stops repetition loops seen with a shortened audio_ctx */
             p.temperature = 0.0f; p.temperature_inc = 0.0f; p.suppress_blank = true; p.suppress_nst = true;
             p.initial_prompt = use_prompt ? command_prompt() : nullptr;
             // Encoder work scales with audio_ctx (50 per second). Commands are short, so do not encode a full 30 s window.
-            int need = (int)(utt.size() / 320) + 50; // utterance frames + 1 s margin
+            int need = (int)(utt.size() / 320) + ctx_margin; // utterance frames (50 per second) + margin
             p.audio_ctx = need < ctx_min ? ctx_min : (need > 1500 ? 1500 : need);
             // whisper needs >= 1 s of samples: pad with silence
             if (pcm.size() < (size_t)AUDIO_RATE + 1600) pcm.resize((size_t)AUDIO_RATE + 1600, 0.0f);
@@ -96,6 +100,9 @@ int main(int argc, char **argv) {
                 int ns = whisper_full_n_segments(ctx);
                 for (int s = 0; s < ns; s++) text += whisper_full_get_segment_text(ctx, s);
             }
+            if (timings) { whisper_timings *tm = whisper_get_timings(ctx);
+                fprintf(stderr, "timings_ms encode %.0f decode %.0f batchd %.0f prompt %.0f sample %.0f audio_ctx %d\n", tm->encode_ms, tm->decode_ms, tm->batchd_ms, tm->prompt_ms, tm->sample_ms, p.audio_ctx);
+                whisper_reset_timings(ctx); }
             text = collapse_repeats(text);
             size_t b = text.find_first_not_of(' '); text = b == std::string::npos ? "" : text.substr(b);
             Command c = parse_command(text);
