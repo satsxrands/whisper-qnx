@@ -18,6 +18,17 @@ root with HOME=/root (licence files), and CMAKE_SYSTEM_PROCESSOR is mapped aarch
 `scripts/run-vm-x86_64.sh &` boots it headless (TCG, ssh on localhost:2222). aarch64le images are blocked: mkqnximage
 needs startup-qemu-virt from the QEMU quickstart BSP, installable only via the QNX Software Center.
 
+## Quickstart image (2026-11-21)
+The QNX quickstart package (com.qnx.qnx800.quickstart.qemu, 20260902) is an **x86_64** image only: no aarch64 image, so no hvf
+on Apple Silicon (startup-qemu-virt is still absent from the SDP). Unpack: `mkdir -p ~/qnx/work/quickstart && cd ~/qnx/work/quickstart &&
+cat ~/qnx/qnx800/images/qemu/*.tar.gz.* | tar xzf -`, then `qemu-img convert -O qcow2 qemu/output/disk-qemu qemu/output/disk.qcow2`
+and delete the 47 GB raw disk (the qcow2 is 5 GB). Boot: `scripts/run-vm-quickstart.sh &` (ssh localhost:2223 as qnxuser; root ssh is refused).
+Serial console is tcp 4555 (login root / root, image defaults); use it once to install `~/qnx/vm_key.pub` into /data/home/qnxuser/.ssh/authorized_keys.
+Use `VM=quickstart scripts/vm-ssh.sh` and `scripts/transcribe-on-target.sh`. Build with live audio support: `SND=1 scripts/build-voicecmd.sh x86_64`.
+Audio drivers in the SDP: x86_64 has sndrv-ctrl-intel_hda and sndrv-ctrl-usb; aarch64le has ONLY usb (no intel_hda, no virtio-snd).
+Status: io-snd + intel_hda reach the controller (needs libpci.so + libpci_hw_common.so from the SDP and PCI_CAP_MODULE_DIR=/proc/boot,
+QEMU `-device intel-hda,msi=on`) but QNX sees STATESTS=0 (no codec) so no /dev/snd yet. USB audio: QEMU qemu-xhci fails 'Enable Slot Command' in devu-hcd-xhci.
+
 ## Run
 `scripts/transcribe-on-target.sh` copies whisper-cli, libs, ggml-tiny.en and jfk.wav to /data/w and runs
 `LD_LIBRARY_PATH=lib ./bin/whisper-cli -m ggml-tiny.en.bin -f jfk.wav -t 4`.
