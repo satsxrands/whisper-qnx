@@ -19,12 +19,12 @@ static long now_ms() {
 }
 
 static void usage(const char *p) {
-    fprintf(stderr, "usage: %s -m model.bin -a <file:x.wav|tcp:host:port|snd:name> [-t threads] [--audio-ctx-min N] [--ctx-margin N] [--hang-ms N] [--max-tokens N] [--timings] [--no-prompt] [--max N]\n", p);
+    fprintf(stderr, "usage: %s -m model.bin -a <file:x.wav|tcp:host:port|snd:name> [-t threads] [--audio-ctx-min N] [--ctx-margin N] [--hang-ms N] [--max-tokens N] [--timings] [--prompt TEXT] [--no-prompt] [--max N]\n", p);
 }
 
 int main(int argc, char **argv) {
     const char *model = nullptr, *spec = nullptr;
-    int threads = 4, ctx_min = 100, ctx_margin = 50, hang_ms = 600, max_tokens = 16, max_utts = 0; bool use_prompt = true, timings = false;
+    int threads = 4, ctx_min = 80, ctx_margin = 25, hang_ms = 600, max_tokens = 10, max_utts = 0; bool use_prompt = true, timings = false; const char *prompt_text = nullptr;
     for (int i = 1; i < argc; i++) {
         std::string a = argv[i];
         if (a == "-m" && i + 1 < argc) model = argv[++i];
@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
         else if (a == "--hang-ms" && i + 1 < argc) hang_ms = atoi(argv[++i]);
         else if (a == "--max-tokens" && i + 1 < argc) max_tokens = atoi(argv[++i]);
         else if (a == "--timings") timings = true;
+        else if (a == "--prompt" && i + 1 < argc) prompt_text = argv[++i];
         else if (a == "--max" && i + 1 < argc) max_utts = atoi(argv[++i]);
         else if (a == "--no-prompt") use_prompt = false;
         else { usage(argv[0]); return 2; }
@@ -89,7 +90,7 @@ int main(int argc, char **argv) {
             p.no_timestamps = true; p.single_segment = true; p.no_context = true;
             p.max_tokens = max_tokens; /* commands are short; a cap also stops repetition loops seen with a shortened audio_ctx */
             p.temperature = 0.0f; p.temperature_inc = 0.0f; p.suppress_blank = true; p.suppress_nst = true;
-            p.initial_prompt = use_prompt ? command_prompt() : nullptr;
+            p.initial_prompt = use_prompt ? (prompt_text ? prompt_text : command_prompt()) : nullptr;
             // Encoder work scales with audio_ctx (50 per second). Commands are short, so do not encode a full 30 s window.
             int need = (int)(utt.size() / 320) + ctx_margin; // utterance frames (50 per second) + margin
             p.audio_ctx = need < ctx_min ? ctx_min : (need > 1500 ? 1500 : need);
@@ -102,7 +103,7 @@ int main(int argc, char **argv) {
             }
             if (timings) { whisper_timings *tm = whisper_get_timings(ctx);
                 fprintf(stderr, "timings_ms encode %.0f decode %.0f batchd %.0f prompt %.0f sample %.0f audio_ctx %d\n", tm->encode_ms, tm->decode_ms, tm->batchd_ms, tm->prompt_ms, tm->sample_ms, p.audio_ctx);
-                whisper_reset_timings(ctx); }
+                whisper_print_timings(ctx); whisper_reset_timings(ctx); }
             text = collapse_repeats(text);
             size_t b = text.find_first_not_of(' '); text = b == std::string::npos ? "" : text.substr(b);
             Command c = parse_command(text);
