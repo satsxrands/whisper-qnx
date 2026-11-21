@@ -103,6 +103,10 @@ def main():
         with CV:
             apply(ev); CV.notify_all()
     with CV: STATE["status"] = "audio stream ended"; STATE["v"] += 1; CV.notify_all()
-    time.sleep(3600)  # keep serving the final state until Ctrl-C
+    print("[dashboard] stream ended; final state stays up, Ctrl-C to quit", file=sys.stderr, flush=True)
+    try: threading.Event().wait()
+    except KeyboardInterrupt: pass
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    try: main()
+    except KeyboardInterrupt: sys.exit(0)
