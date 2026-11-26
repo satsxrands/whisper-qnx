@@ -79,3 +79,22 @@ Per command, end of speech to JSON, tiny.en, 4 threads, 20 phrases each (TTS voi
 | Voice C clean | 7.9 s mean (6.8 / 9.7), 20/20 | 125 ms mean (109 / 143), 20/20 |
 | Voice D 10 dB noise | 7.8 s mean (6.3 / 9.6), 18/20 | 111 ms mean (89 / 134), 18/20 |
 Threads on set A: 1 thread 423 ms, 2 threads 228 ms, 4 threads 128 ms. whisper-cli tiny.en on jfk.wav (11 s): 1.76 s total (QEMU 77 s). Raw logs: `voicecmd/results/aws/`.
+
+## Media commands and the longer prompt (2026-11-26, Graviton)
+Live mic test found "Can you play Spotify" transcribed as "Can you please Spotify?" (tiny.en pulls "play" to "please"). Two fixes:
+- Grammar: new intents `play_media {"source":"spotify|music|radio|podcast"}`, `pause_media` ("pause", "stop music"), `next_track` ("next track/song", "skip"),
+  `previous_track`; polite wrappers parse ("can you play Spotify", "please play music", "play Spotify please"). New reject reason `unknown_source` ("Play Mozart").
+  Design choice: a lone source word ("Can you please Spotify?") is accepted as `play_media`, marked `fuzzy`, because "please" is filler and a bare source can only
+  mean play. Bare "play", "next", "stop" are rejected. 78 host and on-instance grammar cases pass.
+- Prompt: now `Mute. Volume up. Call Mom. Call Sarah. Navigate home. Navigate to work. Play Spotify. Next track.` The old 5-phrase limit existed because a prompt token
+  cost about 0.15 s under QEMU; on Graviton that cost is negligible (about 10 ms mean).
+| Set | 5-phrase prompt (earlier table) | New 8-phrase prompt |
+|---|---|---|
+| A clean | 20/20, 128 ms | 20/20, 144 ms |
+| B 10 dB | 19/20, 119 ms | 19/20, 137 ms |
+| C clean | 20/20, 125 ms | 20/20, 142 ms |
+| D 10 dB | 18/20, 111 ms | 18/20, 130 ms |
+Media phrases (12 each: "Can you play Spotify", "Play music", "Next track", "Pause", "Please play music", "Play Spotify please", "Stop music", "Previous track", "Skip",
+"Play the radio", "Play a podcast", "Can you play Spotify"; macOS `say`, 16 kHz): voice Samantha 12/12 correct action, 121 to 152 ms; voice Daniel 10/12 (Pause heard as
+"Cause.", Skip as "Skype."; both rejected, no wrong action). With the old 5-phrase prompt the same Samantha stream had 3 near-misses ("Next trap", "Place Spotify", "Can you place Spotify").
+Raw logs: `voicecmd/results/aws/media_*`. Note: `scripts/bench-aws.sh` now works with no extra args.

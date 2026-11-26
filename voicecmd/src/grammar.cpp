@@ -14,10 +14,12 @@ const std::vector<std::string> CONTACTS = {"mom", "dad", "john", "sarah", "emma"
 const std::map<std::string, std::string> CONTACT_ALIAS = {{"mum", "mom"}, {"mommy", "mom"}, {"mother", "mom"}, {"father", "dad"}, {"sara", "sarah"}, {"jon", "john"}};
 const std::vector<std::string> DESTS = {"home", "work", "airport", "petrol", "gym"};
 const std::map<std::string, std::string> DEST_ALIAS = {{"office", "work"}, {"fuel", "petrol"}, {"gas", "petrol"}};
+const std::vector<std::string> SOURCES = {"spotify", "music", "radio", "podcast"};
+const std::map<std::string, std::string> SOURCE_ALIAS = {{"podcasts", "podcast"}, {"spotifi", "spotify"}};
 const std::vector<std::string> WINDOWS = {"driver", "passenger", "rear", "front", "all"};
 
 /* Words the grammar anchors on; a transcript word within edit distance 1 of exactly one of these (length >= 5) is corrected. */
-const std::vector<std::string> ANCHORS = {"temperature", "navigate", "navigation", "volume", "window", "windows", "airport", "passenger", "driver", "petrol", "contact"};
+const std::vector<std::string> ANCHORS = {"temperature", "navigate", "navigation", "volume", "window", "windows", "airport", "passenger", "driver", "petrol", "contact", "spotify", "podcast", "previous"};
 
 const std::map<std::string, int> NUM = {
     {"zero", 0}, {"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}, {"six", 6}, {"seven", 7}, {"eight", 8}, {"nine", 9},
@@ -152,10 +154,39 @@ Command parse_command(const std::string &transcript) {
     bool mute = has(t, "mute");
     bool win = has_any(t, {"window", "windows"});
 
-    int anchors = temp + nav + call + (vol || mute) + win;
+    /* media. "stop" only counts next to a source word ("stop music"); a bare "stop" stays no_match. */
+    bool src_word = false;
+    for (auto &w : t) { std::string x; bool f2 = false; if (resolve(w, SOURCES, SOURCE_ALIAS, x, f2)) { src_word = true; break; } }
+    bool m_play = has(t, "play"), m_pause = has(t, "pause") || (has(t, "stop") && src_word);
+    bool m_next = has(t, "skip") || (has(t, "next") && has_any(t, {"track", "tracks", "song", "songs"}));
+    bool m_prev = has(t, "previous") && has_any(t, {"track", "tracks", "song", "songs"});
+    bool m_partial = (has(t, "next") || has(t, "previous")) && !m_next && !m_prev;
+    /* tiny.en hears "play" as "please" before a source word, and "please" is filler, so a lone source word means play_media. */
+    bool m_lone = t.size() == 1 && src_word && !m_play;
+    int n_media = (int)m_play + (int)m_pause + (int)m_next + (int)m_prev + (int)m_lone + (int)m_partial;
+    bool media = n_media > 0;
+
+    int anchors = temp + nav + call + (vol || mute) + win + media;
     if (anchors == 0) return reject("no_match", norm, fuzzy);
     if (anchors > 1) return reject("ambiguous", norm, fuzzy);
 
+    if (media) {
+        if (n_media > 1) return reject("ambiguous", norm, fuzzy);
+        if (m_partial) return reject("missing_value", norm, fuzzy);
+        if (m_pause) return accept("pause_media", "{}", norm, fuzzy);
+        if (m_next) return accept("next_track", "{}", norm, fuzzy);
+        if (m_prev) return accept("previous_track", "{}", norm, fuzzy);
+        std::string src; bool found = false, any = false;
+        for (auto &w : t) {
+            if (w == "play") continue;
+            any = true;
+            if (resolve(w, SOURCES, SOURCE_ALIAS, src, fuzzy)) { found = true; break; }
+        }
+        if (m_lone) fuzzy = true;
+        if (!any) return reject("missing_value", norm, fuzzy);
+        if (!found) return reject("unknown_source", norm, fuzzy);
+        return accept("play_media", "{\"source\":\"" + src + "\"}", norm, fuzzy);
+    }
     if (temp) {
         int val = -1;
         for (auto &w : t) if (is_number(w)) { val = std::stoi(w); break; }
@@ -214,7 +245,8 @@ std::string command_json(const Command &c, const std::string &transcript, long a
 }
 
 const char *command_prompt() {
-    /* Kept short on purpose: under QEMU emulation every prompt token costs about 0.15 s per command.
-     * These five phrases were the smallest set that held 20/20 on both test voices. */
-    return "Mute. Volume up. Call Mom. Call Sarah. Navigate home.";
+    /* Was kept to five phrases because under QEMU emulation every prompt token cost about 0.15 s per command.
+     * On Graviton (real QNX 8.0) that cost is negligible, so the media phrases are added: without "Play Spotify"
+     * in the prompt, tiny.en pulled "play" to "please". Re-run bench-aws.sh when changing this. */
+    return "Mute. Volume up. Call Mom. Call Sarah. Navigate home. Navigate to work. Play Spotify. Next track.";
 }

@@ -6,9 +6,9 @@
 
 struct Command {
     bool ok = false;          /* true: a valid command; false: rejected */
-    std::string intent;       /* set_temperature, navigate, call, volume_up, volume_down, mute, open_window, close_window */
+    std::string intent;       /* set_temperature, navigate, call, volume_up, volume_down, mute, open_window, close_window, play_media, pause_media, next_track, previous_track */
     std::string slots_json;   /* JSON object text, e.g. {"celsius":21} */
-    std::string reason;       /* when !ok: no_match, out_of_range, missing_value, unknown_contact, unknown_destination, ambiguous */
+    std::string reason;       /* when !ok: no_match, out_of_range, missing_value, unknown_contact, unknown_destination, unknown_source, ambiguous */
     std::string match;        /* "exact" or "fuzzy" (a near-miss word was corrected) */
     std::string normalised;   /* the transcript after normalisation, for logs */
 };

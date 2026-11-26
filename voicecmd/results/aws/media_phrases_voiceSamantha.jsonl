@@ -1,0 +1,14 @@
+{"event":"ready","audio":"file","model_load_ms":479,"threads":4}
+{"event":"command","intent":"play_media","slots":{"source":"spotify"},"match":"exact","transcript":"Can you play Spotify?","audio_ms":2060,"latency_ms":152}
+{"event":"command","intent":"play_media","slots":{"source":"music"},"match":"exact","transcript":"Play Music.","audio_ms":1400,"latency_ms":136}
+{"event":"command","intent":"next_track","slots":{},"match":"exact","transcript":"Next track.","audio_ms":1440,"latency_ms":137}
+{"event":"command","intent":"pause_media","slots":{},"match":"exact","transcript":"Pause.","audio_ms":1160,"latency_ms":130}
+{"event":"command","intent":"play_media","slots":{"source":"music"},"match":"exact","transcript":"Please play music.","audio_ms":1700,"latency_ms":142}
+{"event":"command","intent":"play_media","slots":{"source":"spotify"},"match":"exact","transcript":"Play Spotify please.","audio_ms":2120,"latency_ms":152}
+{"event":"command","intent":"pause_media","slots":{},"match":"exact","transcript":"Stop Music.","audio_ms":1560,"latency_ms":139}
+{"event":"command","intent":"previous_track","slots":{},"match":"exact","transcript":"previous track.","audio_ms":1600,"latency_ms":140}
+{"event":"command","intent":"next_track","slots":{},"match":"exact","transcript":"Skip.","audio_ms":1120,"latency_ms":129}
+{"event":"command","intent":"play_media","slots":{"source":"radio"},"match":"exact","transcript":"Play the radio.","audio_ms":1640,"latency_ms":141}
+{"event":"command","intent":"play_media","slots":{"source":"podcast"},"match":"exact","transcript":"Play a podcast.","audio_ms":1720,"latency_ms":143}
+{"event":"command","intent":"play_media","slots":{"source":"spotify"},"match":"exact","transcript":"Can you play Spotify?","audio_ms":2060,"latency_ms":151}
+{"event":"eof"}

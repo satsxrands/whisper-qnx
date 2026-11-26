@@ -15,7 +15,7 @@ case "$1" in
           echo "[mic-stream] playing $2 as the microphone, waiting for the VM on tcp port $PORT" >&2
           exec "$FF" -hide_banner -loglevel warning -re -i "$2" -ac 1 -ar 16000 -f s16le "tcp://0.0.0.0:$PORT?listen=1" ;;
   "")     echo "[mic-stream] live microphone input ${MIC:-default}, waiting for the VM on tcp port $PORT" >&2
-          exec "$FF" -hide_banner -loglevel warning -fflags nobuffer -f avfoundation -audio_buffer_size 20 -i ":${MIC:-default}" \
+          exec "$FF" -hide_banner -loglevel warning -fflags nobuffer -f avfoundation -i ":${MIC:-default}" \
                -ac 1 -ar 16000 -f s16le "tcp://0.0.0.0:$PORT?listen=1" ;;
   *) echo "usage: $0 [--list | --wav file.wav]" >&2; exit 2 ;;
 esac
