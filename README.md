@@ -66,3 +66,16 @@ VAD: the noise floor now calibrates on the first 300 ms and rises slowly while a
 gate open until the 8 s cap (0 utterances found on the noisy streams); now it segments all 20 (`voicecmd/tests/vad_segments.c`).
 Tunables: `voicecmd --ctx-margin N --audio-ctx-min N --max-tokens N --hang-ms N --prompt TEXT --timings`; benchmark with `scripts/bench-vm.sh`.
 End to end proof: a recorded WAV played as the mic over TCP into the VM: 20/20, mean 10.7 s (before tuning), `voicecmd/results/mic_wav_over_tcp_quickstart.jsonl`.
+
+## Real QNX OS 8.0 hardware path: AWS Graviton (2026-11-26)
+Same binaries, cross-built with `scripts/build.sh aarch64le && scripts/build-voicecmd.sh aarch64le`, run on the QNX OS 8.0.5 arm64 AMI
+(AWS Marketplace, c7g.xlarge = 4 Graviton3 vCPU, login user `qnxuser`). `scripts/stage-aws.sh` pushes the files, `scripts/bench-aws.sh <streamX.wav> <label> -t 4`
+runs the 20-phrase benchmark, `scripts/demo-live-aws.sh [--wav x.wav]` streams the Mac mic over an ssh reverse tunnel into voicecmd on the instance.
+Per command, end of speech to JSON, tiny.en, 4 threads, 20 phrases each (TTS voices, smoke test not a benchmark):
+| Set | QEMU TCG (x86_64) | AWS Graviton3 (QNX 8.0, aarch64le) |
+|---|---|---|
+| Voice A clean | 7.9 s mean (6.8 / 9.5), 20/20 | 128 ms mean (112 / 159), 20/20 |
+| Voice B 10 dB noise | | 119 ms mean (85 / 141), 19/20 |
+| Voice C clean | 7.9 s mean (6.8 / 9.7), 20/20 | 125 ms mean (109 / 143), 20/20 |
+| Voice D 10 dB noise | 7.8 s mean (6.3 / 9.6), 18/20 | 111 ms mean (89 / 134), 18/20 |
+Threads on set A: 1 thread 423 ms, 2 threads 228 ms, 4 threads 128 ms. whisper-cli tiny.en on jfk.wav (11 s): 1.76 s total (QEMU 77 s). Raw logs: `voicecmd/results/aws/`.
