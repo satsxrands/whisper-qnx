@@ -1,0 +1,23 @@
+{"event":"ready","audio":"tcp","model_load_ms":491,"threads":4}
+{"event":"command","intent":"call","slots":{"contact":"sarah"},"match":"exact","transcript":"Call Sarah.","audio_ms":1500,"latency_ms":110}
+{"event":"command","intent":"volume_up","slots":{},"match":"exact","transcript":"Volume up.","audio_ms":1320,"latency_ms":116}
+{"event":"command","intent":"mute","slots":{},"match":"exact","transcript":"Mute.","audio_ms":1120,"latency_ms":112}
+{"event":"command","intent":"call","slots":{"contact":"mom"},"match":"exact","transcript":"Call Mom.","audio_ms":1320,"latency_ms":116}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"Tell me what is the way to do.","audio_ms":2660,"latency_ms":150}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"No, the winner.","audio_ms":1720,"latency_ms":126}
+{"event":"rejected","reason":"missing_value","match":"exact","transcript":"Weather. The temperature outside.","audio_ms":3340,"latency_ms":155}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"What is the weather forecast for the rest of the week","audio_ms":3460,"latency_ms":170}
+{"event":"ready","audio":"tcp","model_load_ms":493,"threads":4}
+{"event":"command","intent":"call","slots":{"contact":"sarah"},"match":"exact","transcript":"Call Sarah.","audio_ms":1380,"latency_ms":120}
+{"event":"command","intent":"volume_up","slots":{},"match":"exact","transcript":"Volume up.","audio_ms":1320,"latency_ms":117}
+{"event":"command","intent":"call","slots":{"contact":"mom"},"match":"exact","transcript":"Call Mom.","audio_ms":1300,"latency_ms":117}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"What is the weekly weather?","audio_ms":2020,"latency_ms":134}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"Can you please Spotify?","audio_ms":1880,"latency_ms":114}
+{"event":"ready","audio":"tcp","model_load_ms":479,"threads":4}
+{"event":"command","intent":"play_media","slots":{"source":"spotify"},"match":"exact","transcript":"Can you play Spotify?","audio_ms":1860,"latency_ms":133}
+{"event":"command","intent":"play_media","slots":{"source":"music"},"match":"exact","transcript":"Play music.","audio_ms":1340,"latency_ms":135}
+{"event":"command","intent":"next_track","slots":{},"match":"exact","transcript":"Next track.","audio_ms":1640,"latency_ms":142}
+{"event":"command","intent":"pause_media","slots":{},"match":"exact","transcript":"Pause.","audio_ms":1140,"latency_ms":108}
+{"event":"command","intent":"next_track","slots":{},"match":"exact","transcript":"Skip.","audio_ms":1040,"latency_ms":128}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"What is the weather today?","audio_ms":2020,"latency_ms":151}
+{"event":"rejected","reason":"no_match","match":"exact","transcript":"And tell me what is today's date.","audio_ms":2480,"latency_ms":162}
